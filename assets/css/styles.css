@@ -24,12 +24,17 @@
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   background: var(--paper);
   color: var(--ink);
   font-family: 'Tajawal', sans-serif;
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
   position: relative;
 }
@@ -411,6 +416,10 @@ header.scrolled {
   align-items: center;
 }
 
+.hero-grid>* {
+  min-width: 0;
+}
+
 .hero-tag {
   font-family: 'Aref Ruqaa', serif;
   font-size: 23px;
@@ -641,6 +650,10 @@ header.scrolled {
   grid-template-columns: .85fr 1.15fr;
   gap: 70px;
   align-items: center;
+}
+
+.about-grid>* {
+  min-width: 0;
 }
 
 .about-photo {
@@ -964,6 +977,8 @@ header.scrolled {
 
 .work-carousel {
   position: relative;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .work-grid {
@@ -1462,6 +1477,28 @@ footer {
     padding: 140px 0 40px;
   }
 
+  .hero-photo-wrap {
+    width: min(88vw, 360px);
+    max-width: 100%;
+  }
+
+  .photo-scribble-bg {
+    inset: -8%;
+  }
+
+  .sticker {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .sticker.s1 {
+    left: 0;
+  }
+
+  .sticker.s2 {
+    right: 0;
+  }
+
   .service-grid {
     grid-template-columns: 1fr;
   }
@@ -1535,6 +1572,18 @@ footer {
     flex-direction: column;
     justify-content: center;
     text-align: center;
+  }
+
+  .contact-box {
+    padding-inline: 16px;
+  }
+
+  .stamp {
+    justify-content: center;
+    max-width: 100%;
+    padding: 14px 16px;
+    font-size: clamp(12px, 3.8vw, 16px);
+    overflow-wrap: anywhere;
   }
 }
 
