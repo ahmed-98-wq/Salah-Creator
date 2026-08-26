@@ -98,6 +98,17 @@ if('IntersectionObserver' in window){
   revealEls.forEach(el=>el.classList.add('in-view'));
 }
 
+// Pause continuous marquee animations while they are outside the viewport.
+const animatedMarquees = document.querySelectorAll('.marquee, .logo-marquee');
+if('IntersectionObserver' in window){
+  const marqueeObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      entry.target.classList.toggle('is-offscreen', !entry.isIntersecting);
+    });
+  }, { rootMargin:'120px 0px' });
+  animatedMarquees.forEach(marquee=>marqueeObserver.observe(marquee));
+}
+
 // smooth nav close / anchor offset handled by scroll-behior + CSS scroll-margin
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener('click', function(ev){
@@ -145,6 +156,7 @@ if(offersCarousel && offersViewport && offerTrack && offerControls){
   let offerTimer;
   let offerSettleTimer;
   let offerPointerStart;
+  let lastOfferWindowWidth = window.innerWidth;
   let offersAreVisible = !('IntersectionObserver' in window);
   let offersArePaused = false;
 
@@ -190,8 +202,18 @@ if(offersCarousel && offersViewport && offerTrack && offerControls){
     if(!mobileOffers.matches) return;
     const slide = offerSlides[offerPosition];
     const offset = slide.offsetLeft - (offersViewport.clientWidth - slide.offsetWidth) / 2;
-    offerTrack.style.transition = animate && !reducedOffersMotion.matches ? '' : 'none';
-    offerTrack.style.transform = `translate3d(${-Math.round(offset)}px, 0, 0)`;
+    const transform = `translate3d(${-Math.round(offset)}px, 0, 0)`;
+
+    if(animate && !reducedOffersMotion.matches){
+      offerTrack.style.transition = '';
+      offerTrack.style.transform = transform;
+    }else{
+      offerTrack.style.transition = 'none';
+      offerTrack.style.transform = transform;
+      // Commit the hidden loop reset before transitions are enabled again.
+      void offerTrack.offsetWidth;
+    }
+
     paintOfferState();
     if(!animate){
       window.requestAnimationFrame(()=>{
@@ -308,6 +330,9 @@ if(offersCarousel && offersViewport && offerTrack && offerControls){
   if(mobileOffers.addEventListener) mobileOffers.addEventListener('change', updateOffersMode);
   else mobileOffers.addListener(updateOffersMode);
   window.addEventListener('resize', ()=>{
+    const currentWidth = window.innerWidth;
+    if(currentWidth === lastOfferWindowWidth) return;
+    lastOfferWindowWidth = currentWidth;
     if(mobileOffers.matches) window.requestAnimationFrame(()=>positionOffer(false));
   }, { passive:true });
   document.addEventListener('visibilitychange', scheduleOfferAuto);
@@ -315,6 +340,7 @@ if(offersCarousel && offersViewport && offerTrack && offerControls){
   if('IntersectionObserver' in window){
     const offersObserver = new IntersectionObserver((entries)=>{
       offersAreVisible = entries[0].isIntersecting;
+      offersCarousel.classList.toggle('is-visible', offersAreVisible);
       scheduleOfferAuto();
     }, { threshold:.25 });
     offersObserver.observe(offersCarousel);
@@ -358,14 +384,10 @@ if(workCarousel && workTrack && workControls){
     return clone;
   };
 
-  const beforeWorkClones = workCards.map(makeWorkClone);
-  const afterWorkClones = workCards.map(makeWorkClone);
-  const beforeWorkFragment = document.createDocumentFragment();
-  const afterWorkFragment = document.createDocumentFragment();
-  beforeWorkClones.forEach((clone)=>beforeWorkFragment.appendChild(clone));
-  afterWorkClones.forEach((clone)=>afterWorkFragment.appendChild(clone));
-  workTrack.prepend(beforeWorkFragment);
-  workTrack.append(afterWorkFragment);
+  const beforeWorkClone = makeWorkClone(workCards[workCards.length - 1], workCards.length - 1);
+  const afterWorkClone = makeWorkClone(workCards[0], 0);
+  workTrack.prepend(beforeWorkClone);
+  workTrack.append(afterWorkClone);
   const workSlides = [...workTrack.querySelectorAll('.work-card')];
 
   workControls.hidden = false;
@@ -460,10 +482,10 @@ if(workCarousel && workTrack && workControls){
     let target;
     if(index < 0){
       activeWork = workCards.length - 1;
-      target = beforeWorkClones[activeWork];
+      target = beforeWorkClone;
     }else if(index >= workCards.length){
       activeWork = 0;
-      target = afterWorkClones[0];
+      target = afterWorkClone;
     }else{
       activeWork = index;
       target = workCards[activeWork];

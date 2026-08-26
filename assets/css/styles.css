@@ -1011,7 +1011,7 @@ html[data-theme="dark"] .theme-icon--sun {
 
 .offer-card--featured {
   background: var(--sticker2);
-  color: var(--paper);
+  color: #F2ECDC;
   border-color: var(--marker);
   box-shadow: 7px 8px 0 var(--marker);
 }
@@ -1117,7 +1117,8 @@ html[data-theme="dark"] .theme-icon--sun {
 
 .offer-card--featured .offer-cta {
   background: var(--marker);
-  border-color: var(--paper);
+  color: #FFFFFF;
+  border-color: #F2ECDC;
 }
 
 .offer-card.is-offer-clone,
@@ -1212,6 +1213,12 @@ html[data-theme="dark"] .theme-icon--sun {
 
 .logo-marquee:hover .logo-marquee-track {
   animation-play-state: paused;
+}
+
+.marquee.is-offscreen .marquee-track,
+.logo-marquee.is-offscreen .logo-marquee-track {
+  animation-play-state: paused;
+  will-change: auto;
 }
 
 @keyframes logo-scrollx {
@@ -1652,6 +1659,18 @@ footer {
 }
 
 @media (max-width:720px) {
+  body::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 100vh;
+  }
+
+  header.scrolled {
+    background: var(--paper);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .offers {
     padding-bottom: 92px;
   }
@@ -1665,6 +1684,7 @@ footer {
     padding-block: 18px 14px;
     touch-action: pan-y;
     direction: ltr;
+    contain: layout paint;
   }
 
   .offer-grid {
@@ -1672,8 +1692,11 @@ footer {
     width: max-content;
     gap: 18px;
     direction: ltr;
+    transition: transform .48s cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .offers-carousel.is-visible .offer-grid {
     will-change: transform;
-    transition: transform .5s var(--ease);
   }
 
   .offer-card,
@@ -1689,6 +1712,10 @@ footer {
   .offer-card.is-offer-clone {
     display: flex;
     pointer-events: none;
+  }
+
+  .offer-card:hover {
+    transform: none;
   }
 
   .offer-carousel-controls {
