@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="صلاح كريتور — مصمم جرافيك وهوية بصرية في كمبالا. تصميم شعارات، هويات بصرية، تغليف، ومحتوى رقمي يحوّل الأفكار إلى علامات لا تُنسى.">
 <meta name="theme-color" content="#F2ECDC">
+<script>
+  try {
+    const savedTheme = localStorage.getItem('salah-theme');
+    const useDarkTheme = savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (useDarkTheme) {
+      document.documentElement.dataset.theme = 'dark';
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#111315');
+    }
+  } catch (error) {}
+</script>
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://salahcreator.com/">
 <meta property="og:locale" content="ar_AR">
@@ -20,7 +30,7 @@
 <meta name="twitter:description" content="من فكرة بسيطة إلى هوية لا تُنسى.">
 <meta name="twitter:image" content="https://salahcreator.com/assets/images/og-cover.jpg">
 <title>صلاح كريتور — Salah Creator | Graphic &amp; Brand Designer</title>
-<link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Caveat:wght@600;700&family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -50,12 +60,23 @@
       <li><a href="#work">الأعمال<svg viewBox="0 0 60 8"><path d="M2 5 Q 15 1 30 5 T 58 4"/></svg></a></li>
       <li><a href="#process">طريقة الشغل<svg viewBox="0 0 60 8"><path d="M2 5 Q 15 1 30 5 T 58 4"/></svg></a></li>
     </ul>
-    <div class="nav-cta">
-      <a href="#contact" class="btn btn-solid"><span class="long">تعال نرنــــدك</span></a>
+    <div class="nav-actions">
+      <div class="nav-cta">
+        <a href="#contact" class="btn btn-solid"><span class="long">تعال نرنــــدك</span></a>
+      </div>
+      <button class="theme-toggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="تغيير مظهر الموقع">
+        <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"/>
+        </svg>
+        <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2V4 M12 20V22 M4.93 4.93L6.34 6.34 M17.66 17.66L19.07 19.07 M2 12H4 M20 12H22 M4.93 19.07L6.34 17.66 M17.66 6.34L19.07 4.93"/>
+        </svg>
+      </button>
+      <button class="burger" type="button" aria-label="فتح قائمة التنقل" aria-expanded="false" aria-controls="mobileNav">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    <button class="burger" type="button" aria-label="فتح قائمة التنقل" aria-expanded="false" aria-controls="mobileNav">
-      <span></span><span></span><span></span>
-    </button>
     <nav class="mobile-nav" id="mobileNav" aria-label="التنقل على الهاتف">
       <a href="#about"> أنا منو</a>
       <a href="#services">الخدمات</a>
@@ -206,6 +227,72 @@
         <p>تصميم تغليف بيحوّل المنتج لتجربة، من الفكرة الأولى للمجسم النهائي الجاهز للطباعة.</p>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ============ OFFERS ============ -->
+<section class="offers" id="offers" aria-labelledby="offersTitle">
+  <div class="wrap">
+    <div class="section-head offers-head reveal">
+      <span class="eyebrow">باقات التصميم</span>
+      <h2 class="display" id="offersTitle">اختار الباقة البتشبه مشروعك</h2>
+      <p>كل باقة قابلة للتخصيص حسب احتياج مشروعك.</p>
+    </div>
+
+    <div class="offers-carousel">
+      <div class="offers-viewport">
+        <div class="offer-grid" id="offerTrack" role="region" aria-label="باقات خدمات التصميم">
+          <article class="offer-card offer-card--tilt-left reveal reveal-d1">
+            <span class="offer-kicker">Logo Starter</span>
+            <h3>باقة البداية</h3>
+            <p class="offer-desc">للمشاريع الجديدة المحتاجة بداية واضحة واحترافية.</p>
+            <ul class="offer-features">
+              <li>تصميم شعار رئيسي</li>
+              <li>لوحة ألوان وخطوط</li>
+              <li>ملفات PNG وPDF وSVG</li>
+              <li>تعديلان على التصميم</li>
+            </ul>
+            <div class="offer-meta"><span>مدة التنفيذ</span><strong>5–7 أيام</strong></div>
+            <a class="btn offer-cta" href="https://wa.me/256776261034?text=مرحباً%20صلاح،%20أريد%20الاستفسار%20عن%20باقة%20البداية" target="_blank" rel="noopener noreferrer">اطلب عرض سعر</a>
+          </article>
+
+          <article class="offer-card offer-card--featured reveal reveal-d2">
+            <span class="offer-badge">الأكثر طلبًا</span>
+            <span class="offer-kicker">Visual Identity</span>
+            <h3>باقة الهوية</h3>
+            <p class="offer-desc">هوية متناسقة تخلي علامتك معروفة من أول نظرة.</p>
+            <ul class="offer-features">
+              <li>تصميم الشعار وتفرعاته</li>
+              <li>نظام الألوان والخطوط</li>
+              <li>3 تطبيقات للهوية</li>
+              <li>دليل استخدام مختصر</li>
+            </ul>
+            <div class="offer-meta"><span>مدة التنفيذ</span><strong>10–14 يومًا</strong></div>
+            <a class="btn offer-cta" href="https://wa.me/256776261034?text=مرحباً%20صلاح،%20أريد%20الاستفسار%20عن%20باقة%20الهوية" target="_blank" rel="noopener noreferrer">اطلب عرض سعر</a>
+          </article>
+
+          <article class="offer-card offer-card--tilt-right reveal reveal-d3">
+            <span class="offer-kicker">Full Brand</span>
+            <h3>باقة البراند الكامل</h3>
+            <p class="offer-desc">حل متكامل للعلامات الجاهزة للظهور والتوسع.</p>
+            <ul class="offer-features">
+              <li>هوية بصرية متكاملة</li>
+              <li>دليل استخدام تفصيلي</li>
+              <li>تصميم تغليف أو سوشيال</li>
+              <li>دعم بعد التسليم</li>
+            </ul>
+            <div class="offer-meta"><span>مدة التنفيذ</span><strong>14–21 يومًا</strong></div>
+            <a class="btn offer-cta" href="https://wa.me/256776261034?text=مرحباً%20صلاح،%20أريد%20الاستفسار%20عن%20باقة%20البراند%20الكامل" target="_blank" rel="noopener noreferrer">اطلب عرض سعر</a>
+          </article>
+        </div>
+      </div>
+
+      <div class="offer-carousel-controls" aria-label="عناصر التحكم في باقات التصميم" hidden>
+        <button class="offer-arrow offer-arrow--prev" type="button" aria-controls="offerTrack" aria-label="الباقة السابقة">&#8594;</button>
+        <div class="offer-dots" aria-label="اختيار الباقة"></div>
+        <button class="offer-arrow offer-arrow--next" type="button" aria-controls="offerTrack" aria-label="الباقة التالية">&#8592;</button>
+      </div>
     </div>
   </div>
 </section>
@@ -388,10 +475,16 @@
   </div>
 </section>
 
+<a class="whatsapp-float" href="https://wa.me/256776261034" target="_blank" rel="noopener noreferrer" aria-label="تواصل معي عبر واتساب" title="تواصل عبر واتساب">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.296-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.173.198-.297.298-.495.099-.198.05-.372-.025-.521-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.372-.01-.57-.01-.198 0-.52.075-.792.372-.272.297-1.04 1.016-1.04 2.479s1.065 2.875 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.693.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.002-5.45 4.438-9.887 9.892-9.887a9.82 9.82 0 0 1 7.021 2.91 9.83 9.83 0 0 1 2.897 7.027c-.003 5.45-4.439 9.888-9.926 9.888m8.413-18.297A11.82 11.82 0 0 0 12.055 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.688 1.448h.005c6.557 0 11.893-5.335 11.896-11.893a11.82 11.82 0 0 0-3.487-8.413Z"/>
+  </svg>
+</a>
+
 <footer>
   <div class="wrap footer-row">
     <span class="footer-ar">© 2026 صلاح كريتور — Salah Creator</span>
-    <span><a href="https://ahmed-98-wq.github.io/Ahmed-Portfolio/" target="_blank"><span class="circle-word">Ahmed Adam<svg viewBox="0 0 100 40"><path d="M4 20 C 4 6 20 3 50 3 C 80 3 96 6 96 20 C 96 34 80 37 50 37 C 20 37 4 34 4 20 Z"/></svg></span></a>Designed &amp; sketched in Kampala By </span>
+    <span><a href="https://ahmed-98-wq.github.io/Ahmed-Portfolio/" target="_blank"><span class="circle-word">Ahmed Adam<svg viewBox="0 0 100 40"><path d="M4 20 C 4 6 20 3 50 3 C 80 3 96 6 96 20 C 96 34 80 37 50 37 C 20 37 4 34 4 20 Z"/></svg></span></a>Designed &amp; sketched By </span>
   </div>
 </footer>
 

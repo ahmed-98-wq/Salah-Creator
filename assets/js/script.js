@@ -1,3 +1,50 @@
+// light / dark theme
+const themeToggle = document.querySelector('.theme-toggle');
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+const systemDarkTheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+const applyTheme = (theme, saveChoice = false)=>{
+  const isDark = theme === 'dark';
+  if(isDark) document.documentElement.dataset.theme = 'dark';
+  else delete document.documentElement.dataset.theme;
+
+  if(themeToggle){
+    themeToggle.setAttribute('aria-pressed', String(isDark));
+    themeToggle.setAttribute('aria-label', isDark ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن');
+    themeToggle.title = isDark ? 'الوضع الفاتح' : 'الوضع الداكن';
+  }
+
+  if(themeColorMeta) themeColorMeta.setAttribute('content', isDark ? '#111315' : '#F2ECDC');
+
+  if(saveChoice){
+    try {
+      localStorage.setItem('salah-theme', theme);
+    } catch (error) {}
+  }
+};
+
+let hasSavedTheme = false;
+try {
+  hasSavedTheme = localStorage.getItem('salah-theme') !== null;
+} catch (error) {}
+
+applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+
+if(themeToggle){
+  themeToggle.addEventListener('click', ()=>{
+    const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    hasSavedTheme = true;
+    applyTheme(nextTheme, true);
+  });
+}
+
+const syncSystemTheme = (event)=>{
+  if(!hasSavedTheme) applyTheme(event.matches ? 'dark' : 'light');
+};
+
+if(systemDarkTheme.addEventListener) systemDarkTheme.addEventListener('change', syncSystemTheme);
+else systemDarkTheme.addListener(syncSystemTheme);
+
 // header scroll state
 const header = document.getElementById('siteHeader');
 const updateHeader = ()=>{
@@ -78,6 +125,203 @@ if(heroPhoto && hero && window.matchMedia('(pointer:fine)').matches){
   hero.addEventListener('mouseleave', ()=>{
     heroPhoto.style.transform = '';
   });
+}
+
+// infinite offers carousel on mobile
+const offersCarousel = document.querySelector('.offers-carousel');
+const offersViewport = document.querySelector('.offers-viewport');
+const offerTrack = document.getElementById('offerTrack');
+const offerControls = document.querySelector('.offer-carousel-controls');
+
+if(offersCarousel && offersViewport && offerTrack && offerControls){
+  const offerCards = [...offerTrack.querySelectorAll('.offer-card')];
+  const prevOffer = offerControls.querySelector('.offer-arrow--prev');
+  const nextOffer = offerControls.querySelector('.offer-arrow--next');
+  const offerDots = offerControls.querySelector('.offer-dots');
+  const mobileOffers = window.matchMedia('(max-width:720px)');
+  const reducedOffersMotion = window.matchMedia('(prefers-reduced-motion:reduce)');
+  let offerPosition = 1;
+  let offerMoving = false;
+  let offerTimer;
+  let offerSettleTimer;
+  let offerPointerStart;
+  let offersAreVisible = !('IntersectionObserver' in window);
+  let offersArePaused = false;
+
+  const makeOfferClone = (card)=>{
+    const clone = card.cloneNode(true);
+    clone.classList.add('is-offer-clone');
+    clone.classList.remove('reveal', 'reveal-d1', 'reveal-d2', 'reveal-d3', 'in-view');
+    clone.setAttribute('aria-hidden', 'true');
+    clone.querySelectorAll('a, button').forEach(el=>el.setAttribute('tabindex', '-1'));
+    return clone;
+  };
+
+  offerTrack.prepend(makeOfferClone(offerCards[offerCards.length - 1]));
+  offerTrack.append(makeOfferClone(offerCards[0]));
+  const offerSlides = [...offerTrack.querySelectorAll('.offer-card')];
+  offerControls.hidden = false;
+
+  const dots = offerCards.map((card, index)=>{
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'offer-dot';
+    dot.setAttribute('aria-label', `عرض الباقة ${index + 1}`);
+    offerDots.appendChild(dot);
+    return dot;
+  });
+
+  const realOfferIndex = ()=>{
+    if(offerPosition === 0) return offerCards.length - 1;
+    if(offerPosition === offerCards.length + 1) return 0;
+    return offerPosition - 1;
+  };
+
+  const paintOfferState = ()=>{
+    const active = realOfferIndex();
+    dots.forEach((dot, index)=>{
+      dot.classList.toggle('is-active', index === active);
+      if(index === active) dot.setAttribute('aria-current', 'true');
+      else dot.removeAttribute('aria-current');
+    });
+  };
+
+  const positionOffer = (animate = true)=>{
+    if(!mobileOffers.matches) return;
+    const slide = offerSlides[offerPosition];
+    const offset = slide.offsetLeft - (offersViewport.clientWidth - slide.offsetWidth) / 2;
+    offerTrack.style.transition = animate && !reducedOffersMotion.matches ? '' : 'none';
+    offerTrack.style.transform = `translate3d(${-Math.round(offset)}px, 0, 0)`;
+    paintOfferState();
+    if(!animate){
+      window.requestAnimationFrame(()=>{
+        offerTrack.style.transition = '';
+      });
+    }
+  };
+
+  const finishOfferLoop = ()=>{
+    window.clearTimeout(offerSettleTimer);
+    if(offerPosition === 0){
+      offerPosition = offerCards.length;
+      positionOffer(false);
+    }else if(offerPosition === offerCards.length + 1){
+      offerPosition = 1;
+      positionOffer(false);
+    }
+    offerMoving = false;
+  };
+
+  const stopOfferAuto = ()=>window.clearTimeout(offerTimer);
+
+  const scheduleOfferAuto = ()=>{
+    stopOfferAuto();
+    if(!mobileOffers.matches || reducedOffersMotion.matches || !offersAreVisible || offersArePaused || document.hidden) return;
+    offerTimer = window.setTimeout(()=>{
+      moveOffer(1);
+    }, 4500);
+  };
+
+  const moveOffer = (direction)=>{
+    if(!mobileOffers.matches || offerMoving) return;
+    offerMoving = true;
+    offerPosition += direction;
+    positionOffer(true);
+    window.clearTimeout(offerSettleTimer);
+    offerSettleTimer = window.setTimeout(finishOfferLoop, reducedOffersMotion.matches ? 30 : 560);
+    scheduleOfferAuto();
+  };
+
+  prevOffer.addEventListener('click', ()=>moveOffer(-1));
+  nextOffer.addEventListener('click', ()=>moveOffer(1));
+  dots.forEach((dot, index)=>{
+    dot.addEventListener('click', ()=>{
+      if(!mobileOffers.matches || offerMoving) return;
+      offerMoving = true;
+      offerPosition = index + 1;
+      positionOffer(true);
+      window.clearTimeout(offerSettleTimer);
+      offerSettleTimer = window.setTimeout(()=>{
+        offerMoving = false;
+      }, reducedOffersMotion.matches ? 30 : 560);
+      scheduleOfferAuto();
+    });
+  });
+
+  offerTrack.addEventListener('transitionend', (event)=>{
+    if(event.target === offerTrack && event.propertyName === 'transform') finishOfferLoop();
+  });
+
+  offersViewport.addEventListener('pointerdown', (event)=>{
+    if(!mobileOffers.matches) return;
+    offerPointerStart = event.clientX;
+    stopOfferAuto();
+  });
+
+  offersViewport.addEventListener('pointerup', (event)=>{
+    if(offerPointerStart == null) return;
+    const distance = event.clientX - offerPointerStart;
+    offerPointerStart = null;
+    if(Math.abs(distance) > 45) moveOffer(distance < 0 ? 1 : -1);
+    else scheduleOfferAuto();
+  });
+
+  offersViewport.addEventListener('pointercancel', ()=>{
+    offerPointerStart = null;
+    scheduleOfferAuto();
+  });
+
+  offersCarousel.addEventListener('mouseenter', ()=>{
+    offersArePaused = true;
+    stopOfferAuto();
+  });
+
+  offersCarousel.addEventListener('mouseleave', ()=>{
+    offersArePaused = false;
+    scheduleOfferAuto();
+  });
+
+  offersCarousel.addEventListener('focusin', ()=>{
+    offersArePaused = true;
+    stopOfferAuto();
+  });
+
+  offersCarousel.addEventListener('focusout', ()=>{
+    offersArePaused = false;
+    scheduleOfferAuto();
+  });
+
+  const updateOffersMode = ()=>{
+    stopOfferAuto();
+    offerMoving = false;
+    offerPosition = 1;
+    if(mobileOffers.matches){
+      window.requestAnimationFrame(()=>positionOffer(false));
+    }else{
+      offerTrack.style.transition = '';
+      offerTrack.style.transform = '';
+    }
+    paintOfferState();
+    scheduleOfferAuto();
+  };
+
+  if(mobileOffers.addEventListener) mobileOffers.addEventListener('change', updateOffersMode);
+  else mobileOffers.addListener(updateOffersMode);
+  window.addEventListener('resize', ()=>{
+    if(mobileOffers.matches) window.requestAnimationFrame(()=>positionOffer(false));
+  }, { passive:true });
+  document.addEventListener('visibilitychange', scheduleOfferAuto);
+
+  if('IntersectionObserver' in window){
+    const offersObserver = new IntersectionObserver((entries)=>{
+      offersAreVisible = entries[0].isIntersecting;
+      scheduleOfferAuto();
+    }, { threshold:.25 });
+    offersObserver.observe(offersCarousel);
+  }
+
+  paintOfferState();
+  updateOffersMode();
 }
 
 // mobile featured-work carousel
